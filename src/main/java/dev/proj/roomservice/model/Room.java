@@ -35,4 +35,7 @@ public class Room {
 
     @Enumerated(EnumType.STRING)
     private RoomStatus roomStatus;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<String> imageUrls;
 }
