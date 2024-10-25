@@ -34,7 +34,7 @@ jobs:
           context: .
           push: true
           file: ./Dockerfile
-          tags: ${{ secrets.DOCKER_USERNAME }}/room-service:latest
+          tags: tiendat1011/room-service:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
