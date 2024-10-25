@@ -83,12 +83,49 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public RoomResponse updateRoom(RoomRequest roomRequest) {
-        return null;
+    public RoomResponse updateRoom(Long Id, RoomRequest roomRequest) {
+        Optional<Room> room = roomRepository.findById(Id);
+
+        if (room.isEmpty()) {
+            return RoomResponse.builder()
+                    .responseInfo(ResponseInfo.builder()
+                            .message(RoomUtils.ROOM_NOT_EXIST_MESSAGE)
+                            .code(RoomUtils.ROOM_NOT_EXIST_CODE)
+                            .build())
+                    .room(null)
+                    .build();
+        }
+
+        List<CompletableFuture<String>> futures = new ArrayList<>();
+        for (MultipartFile image: roomRequest.getImages()) {
+            CompletableFuture<String> imageUrlFuture = uploadImage(image);
+            futures.add(imageUrlFuture);
+        }
+
+        List<String> imageUrls = futures.stream().map(CompletableFuture::join).toList();
+
+        Room newRoom = Room.builder()
+                .roomNumber(roomRequest.getRoomNumber())
+                .description(roomRequest.getDescription())
+                .roomType(roomRequest.getRoomType())
+                .roomPrice(roomRequest.getRoomPrice())
+                .roomCapacity(roomRequest.getRoomCapacity())
+                .imageUrls(imageUrls)
+                .build();
+
+        Room updatedRoom = roomRepository.save(newRoom);
+
+        return RoomResponse.builder()
+                .responseInfo(ResponseInfo.builder()
+                        .message(RoomUtils.UPDATED_ROOM_MESSAGE)
+                        .code(RoomUtils.UPDATED_ROOM_CODE)
+                        .build())
+                .room(updatedRoom)
+                .build();
     }
 
     @Override
-    public RoomResponse deleteRoom(Long id) {
+    public RoomResponse deleteRoom(Long Id) {
         return null;
     }
 
